@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial Interactivo: Pruebas de Hipótesis (Prueba Z)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+                    },
+                    colors: {
+                        fintech: {
+                            50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .data-cell { transition: all 0.2s ease; cursor: pointer; }
+        .data-cell:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .data-cell.selected { 
+            background-color: #2563eb !important; 
+            color: white !important; 
+            border-color: #1d4ed8 !important;
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto space-y-8">
+        
+        <header class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Tutorial Interactivo: Pruebas de Hipótesis</h1>
+            <h2 class="text-xl text-fintech-600 font-medium">Impacto de las Fintech en el Nivel de Sobreendeudamiento</h2>
+        </header>
+
+        <section class="bg-fintech-50 rounded-2xl border border-fintech-100 p-6 md:p-8 shadow-sm">
+            <h3 class="text-2xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                <svg class="w-6 h-6 text-fintech-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Contexto
+            </h3>
+            <p class="mb-4 text-lg text-slate-700 leading-relaxed">
+                La adopción de plataformas de crédito digital y esquemas <strong>Buy Now, Pay Later (BNPL)</strong> ha democratizado el acceso al financiamiento, reduciendo los filtros de riesgo tradicional.
+            </p>
+            <p class="text-lg text-slate-700 leading-relaxed">
+                Eres un investigador en una comunidad rural. El <strong>70%</strong> de las familias accedieron a créditos formales. Históricamente, el endeudamiento era el <strong>15%</strong> de sus ingresos. Tras dos años, observas empíricamente que parece haber subido al <strong>35%</strong>.
+            </p>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+                <h3 class="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <span class="bg-fintech-100 text-fintech-700 w-8 h-8 rounded-full flex items-center justify-center text-sm">1</span> Planteamiento de Hipótesis
+                </h3>
+                <div class="space-y-4">
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                        <p class="font-semibold text-slate-900 mb-1">Hipótesis Nula (H₀):</p>
+                        <p class="text-slate-600 text-sm">La inclusión financiera NO afecta el nivel de deuda. El promedio es igual o menor al histórico.</p>
+                        <p class="text-sm font-mono mt-2 text-slate-500">μ ≤ 15%</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-red-50 border border-red-100">
+                        <p class="font-semibold text-red-900 mb-1">Hipótesis Alternativa (H₁):</p>
+                        <p class="text-red-700 text-sm">La inclusión financiera SÍ incrementa el nivel de deuda. El promedio es mayor.</p>
+                        <p class="text-sm font-mono mt-2 text-red-500">μ > 15%</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+                <h3 class="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <span class="bg-fintech-100 text-fintech-700 w-8 h-8 rounded-full flex items-center justify-center text-sm">2</span> Matriz de Decisión
+                </h3>
+                <div class="overflow-hidden rounded-xl border border-slate-200">
+                    <table class="w-full text-sm text-left">
+                        <thead class="text-xs text-slate-700 uppercase bg-slate-50 border-b">
+                            <tr>
+                                <th class="px-3 py-2">Decisión</th>
+                                <th class="px-3 py-2 border-l text-center">H₀ Verdadera (Deuda = 15%)</th>
+                                <th class="px-3 py-2 border-l text-center">H₀ Falsa (Deuda > 15%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b">
+                                <td class="px-3 py-2 font-semibold">Rechazar H₀</td>
+                                <td class="px-3 py-2 border-l bg-red-50 text-red-700 text-center"><strong>Error Tipo I (α)</strong></td>
+                                <td class="px-3 py-2 border-l bg-emerald-50 text-emerald-700 text-center"><strong>Decisión Correcta</strong></td>
+                            </tr>
+                            <tr>
+                                <td class="px-3 py-2 font-semibold">No Rechazar</td>
+                                <td class="px-3 py-2 border-l bg-emerald-50 text-emerald-700 text-center"><strong>Decisión Correcta</strong></td>
+                                <td class="px-3 py-2 border-l bg-amber-50 text-amber-700 text-center"><strong>Error Tipo II (β)</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+            <h3 class="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                <span class="bg-fintech-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm shadow-md">3</span> Simulador del Escenario
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-end mb-8">
+                <div class="md:col-span-5 space-y-2">
+                    <label class="block text-sm font-semibold text-slate-700">Nivel de Significancia (α) - "La Vara de Medir":</label>
+                    <select id="alpha-level" class="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-fintech-500">
+                        <option value="0.10">α = 0.10 (90% Confianza)</option>
+                        <option value="0.05" selected>α = 0.05 (95% Confianza)</option>
+                        <option value="0.01">α = 0.01 (99% Confianza)</option>
+                    </select>
+                </div>
+                <div class="md:col-span-7">
+                    <button id="btn-simulate" class="w-full md:w-auto bg-fintech-600 hover:bg-fintech-700 text-white font-semibold py-3 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+                        Generar Muestra (n=30) y Analizar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Grilla de datos interactiva -->
+            <div id="data-display" class="hidden fade-in">
+                <div class="flex justify-between items-end mb-3">
+                    <h4 class="text-sm font-semibold text-slate-700 uppercase tracking-wider">Muestra recolectada:</h4>
+                    <span class="text-xs text-fintech-600 font-medium bg-fintech-50 px-2 py-1 rounded border border-fintech-200">¡Haz clic en un porcentaje!</span>
+                </div>
+                <div id="data-grid" class="grid grid-cols-5 md:grid-cols-10 gap-2 font-mono text-sm">
+                    <!-- Datos inyectados por JS -->
+                </div>
+
+                <!-- Panel de Inspección Individual -->
+                <div id="inspector-panel" class="hidden mt-6 p-5 bg-slate-800 rounded-xl text-slate-200 border border-slate-700 shadow-inner fade-in">
+                    <h5 class="text-fintech-400 font-semibold mb-3 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        Inspección de Familia Seleccionada
+                    </h5>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div class="bg-slate-700/50 p-3 rounded-lg">
+                            <span class="block text-slate-400 mb-1">Deuda Seleccionada</span>
+                            <span id="insp-val" class="text-2xl font-bold text-white">--%</span>
+                        </div>
+                        <div class="bg-slate-700/50 p-3 rounded-lg">
+                            <span class="block text-slate-400 mb-1">Vs. Histórico (15%)</span>
+                            <span id="insp-diff-hist" class="text-lg font-mono font-medium">--</span>
+                        </div>
+                        <div class="bg-slate-700/50 p-3 rounded-lg">
+                            <span class="block text-slate-400 mb-1">Vs. Media de Muestra</span>
+                            <span id="insp-diff-mean" class="text-lg font-mono font-medium">--</span>
+                        </div>
+                    </div>
+                    <p id="insp-text" class="mt-4 text-sm text-slate-300 italic"></p>
+                </div>
+            </div>
+        </section>
+
+        <section id="analysis-section" class="hidden space-y-8 fade-in">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Procedimiento Matemático -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <span class="bg-fintech-100 text-fintech-700 w-8 h-8 rounded-full flex items-center justify-center text-sm">4</span> Procedimiento (Prueba Z)
+                    </h3>
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 font-mono text-sm overflow-x-auto text-slate-700">
+                        <p>μ₀ (Media H₀) = 15.00</p>
+                        <p>n  (Muestra)  = <span id="math-n" class="font-bold text-fintech-700"></span></p>
+                        <p>x̄  (Media X̄)  = <span id="math-x" class="font-bold text-emerald-600"></span></p>
+                        <p>s  (Desv. Est) = <span id="math-s" class="font-bold text-amber-600"></span></p>
+                        <hr class="my-2 border-slate-300">
+                        <p class="text-xs text-slate-500 mb-1">Fórmula: Z = (x̄ - μ₀) / (s / √n)</p>
+                        <p>Z = (<span id="math-x-val"></span> - 15.00) / (<span id="math-s-val"></span> / √<span id="math-n-val"></span>)</p>
+                        <p class="text-lg font-bold text-slate-900 mt-2">Z Calc = <span id="math-z" class="text-fintech-600"></span></p>
+                        <p class="text-sm mt-1">Z Crítico (α=<span id="math-alpha"></span>) = <span id="math-z-crit" class="text-red-600"></span></p>
+                    </div>
+                </div>
+
+                <!-- Resultado Final -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col justify-center">
+                    <h3 class="text-xl font-bold text-slate-900 mb-4">Resultado del Análisis</h3>
+                    <div id="conclusion-box" class="p-5 rounded-xl border-2 transition-all">
+                        <!-- Inyectado por JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Campana de Gauss -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <h3 class="text-xl font-bold text-slate-900 mb-2 text-center">Campana de Gauss</h3>
+                <div class="relative w-full overflow-hidden border border-slate-200 rounded-xl bg-slate-50 flex justify-center p-4">
+                    <canvas id="gauss-canvas" width="800" height="350" class="max-w-full h-auto"></canvas>
+                </div>
+                <div class="mt-4 flex flex-wrap justify-center gap-6 text-sm">
+                    <div class="flex items-center gap-2"><span class="w-4 h-4 bg-red-200 border border-red-500"></span><span>Zona Rechazo (H₁)</span></div>
+                    <div class="flex items-center gap-2"><span class="w-4 h-4 bg-slate-200 border border-slate-300"></span><span>Zona Aceptación (H₀)</span></div>
+                    <div class="flex items-center gap-2"><span class="w-1 h-4 bg-blue-600"></span><span>Z Calculado</span></div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Utilidades Matemáticas
+        function randomNormal(mean, stdDev) {
+            let u = 0, v = 0;
+            while(u === 0) u = Math.random();
+            while(v === 0) v = Math.random();
+            let num = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+            return (num * stdDev) + mean;
+        }
+
+        function normalPDF(x) {
+            return (1 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * x * x);
+        }
+
+        // Variables Globales
+        const N_SAMPLES = 30;
+        const MU_NULL = 15; 
+        const EXPECTED_MEAN = 35; // Escenario planteado
+        const EXPECTED_STDDEV = 12;
+        let currentSampleMean = 0;
+        let selectedCell = null;
+
+        // Referencias DOM
+        const btnSimulate = document.getElementById('btn-simulate');
+        const dataDisplay = document.getElementById('data-display');
+        const dataGrid = document.getElementById('data-grid');
+        const analysisSection = document.getElementById('analysis-section');
+        const conclusionBox = document.getElementById('conclusion-box');
+        const inspectorPanel = document.getElementById('inspector-panel');
+
+        btnSimulate.addEventListener('click', () => {
+            const sampleData = [];
+            let sum = 0;
+            dataGrid.innerHTML = ''; 
+            inspectorPanel.classList.add('hidden'); // Ocultar inspector previo si existe
+            if(selectedCell) selectedCell.classList.remove('selected');
+            selectedCell = null;
+
+            // Generar datos
+            for(let i=0; i<N_SAMPLES; i++) {
+                let val = randomNormal(EXPECTED_MEAN, EXPECTED_STDDEV);
+                if(val < 2) val = 2.5; // Limite inferior realista
+                val = parseFloat(val.toFixed(1));
+                sampleData.push(val);
+                sum += val;
+
+                // Crear botón interactivo para el grid
+                const cell = document.createElement('button');
+                cell.className = 'data-cell bg-white border border-slate-200 rounded p-2 text-center text-slate-700 outline-none w-full';
+                cell.textContent = `${val}%`;
+                
+                // Lógica de Selección (Interactividad)
+                cell.addEventListener('click', () => handleCellClick(cell, val));
+                
+                dataGrid.appendChild(cell);
+            }
+
+            // Cálculos Estadísticos
+            currentSampleMean = sum / N_SAMPLES;
+            let sumSq = 0;
+            for(let i=0; i<N_SAMPLES; i++){
+                sumSq += Math.pow(sampleData[i] - currentSampleMean, 2);
+            }
+            const s = Math.sqrt(sumSq / (N_SAMPLES - 1));
+            const stdError = s / Math.sqrt(N_SAMPLES);
+            const zScore = (currentSampleMean - MU_NULL) / stdError;
+
+            // Z Crítico
+            const alpha = parseFloat(document.getElementById('alpha-level').value);
+            let zCritical = alpha === 0.10 ? 1.282 : (alpha === 0.05 ? 1.645 : 2.326);
+
+            // Actualizar Textos de Matemáticas
+            document.getElementById('math-n').textContent = N_SAMPLES;
+            document.getElementById('math-x').textContent = currentSampleMean.toFixed(2);
+            document.getElementById('math-s').textContent = s.toFixed(2);
+            document.getElementById('math-s-val').textContent = s.toFixed(2);
+            document.getElementById('math-n-val').textContent = N_SAMPLES;
+            document.getElementById('math-x-val').textContent = currentSampleMean.toFixed(2);
+            document.getElementById('math-z').textContent = zScore.toFixed(3);
+            document.getElementById('math-alpha').textContent = alpha;
+            document.getElementById('math-z-crit').textContent = zCritical.toFixed(3);
+
+            // Evaluar y mostrar Conclusión
+            if(zScore > zCritical) {
+                conclusionBox.className = "p-5 rounded-xl border-2 bg-red-50 border-red-200 text-red-900";
+                conclusionBox.innerHTML = `
+                    <p class="font-bold text-lg mb-1">🚨 Se RECHAZA H₀</p>
+                    <p class="text-sm">Z (${zScore.toFixed(2)}) > Z Crítico (${zCritical.toFixed(2)}).</p>
+                    <p class="text-sm mt-2"><strong>Interpretación:</strong> La política de inclusión financiera y las plataformas BNPL <strong>SÍ han incrementado significativamente</strong> el sobreendeudamiento por encima del 15% histórico.</p>
+                `;
+            } else {
+                conclusionBox.className = "p-5 rounded-xl border-2 bg-emerald-50 border-emerald-200 text-emerald-900";
+                conclusionBox.innerHTML = `
+                    <p class="font-bold text-lg mb-1">✅ NO se rechaza H₀</p>
+                    <p class="text-sm">Z (${zScore.toFixed(2)}) < Z Crítico (${zCritical.toFixed(2)}).</p>
+                    <p class="text-sm mt-2"><strong>Interpretación:</strong> No hay evidencia suficiente para afirmar que la deuda ha aumentado significativamente.</p>
+                `;
+            }
+
+            // Mostrar secciones y dibujar gráfico
+            dataDisplay.classList.remove('hidden');
+            analysisSection.classList.remove('hidden');
+            setTimeout(() => { analysisSection.scrollIntoView({ behavior: 'smooth' }); }, 100);
+            drawBellCurve(zScore, zCritical);
+        });
+
+        function handleCellClick(cell, value) {
+            // Manejar estilos visuales de selección
+            if (selectedCell) {
+                selectedCell.classList.remove('selected');
+            }
+            selectedCell = cell;
+            selectedCell.classList.add('selected');
+
+            // Mostrar panel
+            inspectorPanel.classList.remove('hidden');
+
+            // Calcular diferencias
+            const diffHist = value - MU_NULL;
+            const diffMean = value - currentSampleMean;
+
+            // Formatear textos con colores
+            document.getElementById('insp-val').textContent = `${value.toFixed(1)}%`;
+            
+            const histEl = document.getElementById('insp-diff-hist');
+            histEl.textContent = `${diffHist > 0 ? '+' : ''}${diffHist.toFixed(1)}%`;
+            histEl.className = `text-lg font-mono font-medium ${diffHist > 0 ? 'text-red-400' : 'text-emerald-400'}`;
+
+            const meanEl = document.getElementById('insp-diff-mean');
+            meanEl.textContent = `${diffMean > 0 ? '+' : ''}${diffMean.toFixed(1)}%`;
+            meanEl.className = `text-lg font-mono font-medium ${diffMean > 0 ? 'text-amber-400' : 'text-blue-400'}`;
+
+            // Texto descriptivo dinámico
+            let desc = `Esta familia destina el ${value.toFixed(1)}% de sus ingresos a pagar créditos. `;
+            if(value > 40) desc += "Tienen un <strong>riesgo crítico de sobreendeudamiento</strong>, muy por encima de la época pre-fintech.";
+            else if(value > MU_NULL) desc += "Representan el caso típico actual: su deuda aumentó respecto al histórico del 15%.";
+            else desc += "Sorprendentemente, mantienen niveles de endeudamiento sanos, similares a la época antes del programa.";
+            
+            document.getElementById('insp-text').innerHTML = desc;
+        }
+
+        function drawBellCurve(calcZ, critZ) {
+            const canvas = document.getElementById('gauss-canvas');
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+
+            const margin = 30, bottom = 40;
+            const gW = w - (margin * 2), gH = h - margin - bottom;
+            const originY = h - bottom;
+            
+            // Adaptar escala X para valores Z gigantes (ej Z=9)
+            let xMax = Math.max(4, Math.ceil(calcZ) + 1);
+            if(xMax > 12) xMax = 12; // Cap visual
+            let xMin = -xMax * 0.4; // Asimetría visual
+            
+            const scaleX = gW / (xMax - xMin);
+            const scaleY = gH / (normalPDF(0) * 1.1);
+
+            const getX = z => margin + ((z - xMin) * scaleX);
+            const getY = pdf => originY - (pdf * scaleY);
+
+            // Zona Rechazo
+            ctx.beginPath();
+            ctx.moveTo(getX(critZ), originY);
+            for(let z = critZ; z <= xMax; z += 0.1) ctx.lineTo(getX(z), getY(normalPDF(z)));
+            ctx.lineTo(getX(xMax), originY);
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.2)';
+            ctx.fill();
+
+            // Zona Aceptación
+            ctx.beginPath();
+            ctx.moveTo(getX(xMin), originY);
+            for(let z = xMin; z <= critZ; z += 0.1) ctx.lineTo(getX(z), getY(normalPDF(z)));
+            ctx.lineTo(getX(critZ), originY);
+            ctx.fillStyle = 'rgba(226, 232, 240, 0.5)';
+            ctx.fill();
+
+            // Curva
+            ctx.beginPath();
+            for(let z = xMin; z <= xMax; z += 0.1) {
+                z === xMin ? ctx.moveTo(getX(z), getY(normalPDF(z))) : ctx.lineTo(getX(z), getY(normalPDF(z)));
+            }
+            ctx.strokeStyle = '#334155'; ctx.lineWidth = 2; ctx.stroke();
+
+            // Eje X
+            ctx.beginPath(); ctx.moveTo(margin, originY); ctx.lineTo(w - margin, originY);
+            ctx.strokeStyle = '#94a3b8'; ctx.stroke();
+
+            // Marcas Eje X
+            ctx.fillStyle = '#475569'; ctx.font = '12px Inter'; ctx.textAlign = 'center';
+            let step = (xMax - xMin) > 15 ? 2 : 1;
+            for(let i = Math.ceil(xMin); i <= Math.floor(xMax); i += step) {
+                let x = getX(i);
+                ctx.beginPath(); ctx.moveTo(x, originY); ctx.lineTo(x, originY + 5); ctx.stroke();
+                ctx.fillText(i, x, originY + 20);
+            }
+
+            // Línea Z Crítico
+            let pcX = getX(critZ);
+            ctx.beginPath(); ctx.moveTo(pcX, originY); ctx.lineTo(pcX, originY - 100);
+            ctx.strokeStyle = '#ef4444'; ctx.setLineDash([4, 4]); ctx.stroke(); ctx.setLineDash([]);
+            ctx.fillStyle = '#ef4444'; ctx.font = 'bold 12px Inter'; ctx.textAlign = 'left';
+            ctx.fillText(`Z Crit (${critZ.toFixed(2)})`, pcX + 5, originY - 105);
+
+            // Línea Z Calculado
+            let renderZ = calcZ > xMax - 0.2 ? xMax - 0.2 : calcZ;
+            let calcX = getX(renderZ);
+            ctx.beginPath(); ctx.moveTo(calcX, originY); ctx.lineTo(calcX, originY - 60);
+            ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 3; ctx.stroke();
+            
+            let label = `Z = ${calcZ.toFixed(2)}`;
+            ctx.fillStyle = 'white'; ctx.fillRect(calcX - 35, originY - 80, 70, 18);
+            ctx.fillStyle = '#1d4ed8'; ctx.textAlign = 'center'; ctx.fillText(label, calcX, originY - 67);
+        }
+    </script>
+</body>
+</html>
